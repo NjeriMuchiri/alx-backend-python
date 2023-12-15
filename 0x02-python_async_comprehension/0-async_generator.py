@@ -10,7 +10,9 @@ async def async_generator():
         await asyncio.sleep(1)
         yield random.randint(0, 10)
 
+
 async def print_yielded_values():
+    """function that stores the result in a list"""
     result = []
     async for i in async_generator():
         result.append(i)
