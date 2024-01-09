@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import unittest
 from parameterized import parameterized
-from utils import access_nested_map, get_json
+from utils import access_nested_map
 from unittest.mock import patch, Mock
+import utils
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -29,20 +30,32 @@ class TestAccessNestedMap(unittest.TestCase):
 
 class TestGetJson(unittest.TestCase):
 
-    @patch('utils.requests.get')
-    @parameterized.expand([
-        ("http://example.com", {"payload": True}),
-        ("http://holberton.io", {"payload": False}),
-    ])
-    def test_get_json(self, test_url, test_payload, mock_requests_get):
-        mock_response = Mock()
-        mock_response.json.return_value = test_payload
-        mock_requests_get.return_value = mock_response
+    @patch('your_module.utils.requests.get')
+    def test_get_json(self, mock_requests_get):
+        # Test data
+        test_data = [
+            {"test_url": "http://example.com", "test_payload": {"payload": True}},
+            {"test_url": "http://holberton.io", "test_payload": {"payload": False}},
+        ]
 
-        result = get_json(test_url)
+        for data in test_data:
+            with self.subTest(data=data):
+                # Set up the mock response
+                mock_response = Mock()
+                mock_response.json.return_value = data['test_payload']
+                mock_requests_get.return_value = mock_response
 
-        mock_requests_get.assert_called_once_with(test_url)
-        self.assertEqual(result, test_payload)
+                # Call the function with the test data
+                result = utils.get_json(data['test_url'])
+
+                # Assert that the mocked get method was called exactly once with test_url as argument
+                mock_requests_get.assert_called_once_with(data['test_url'])
+
+                # Assert that the output of get_json is equal to test_payload
+                self.assertEqual(result, data['test_payload'])
+
+                # Reset the mock for the next iteration
+                mock_requests_get.reset_mock()
 
 
 if __name__ == '__main__':
